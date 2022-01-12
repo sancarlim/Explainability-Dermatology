@@ -1,7 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File       : explainability.ipynb
+# Modified   : 12.01.2022
+# By         : Sandra Carrasco <sandra.carrasco@ai.se>
+
 from torchvision import transforms
 import torch
 import os, sys
-
 sys.path.append('/workspace/stylegan2-ada-pytorch')
 
 from argparse import ArgumentParser 

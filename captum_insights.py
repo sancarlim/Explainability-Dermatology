@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File       : captum_insights.py
+# Modified   : 12.01.2022
+# By         : Sandra Carrasco <sandra.carrasco@ai.se>
+
 import os
 
 import torch

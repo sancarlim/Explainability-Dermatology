@@ -88,55 +88,73 @@ xrai_params = saliency.XRAIParameters()
 xrai_params.algorithm = 'fast'
 
 images_pil = []
-images_masked = []
-metadata = [] 
-embeddings = []
-with open(os.path.join(directory, filename)) as file:
-    data = json.load(file)['labels']
-    random.shuffle(data)
-    data = data[:3000]
-    for n, (img, label) in tqdm(enumerate(data)):
-        # Load an image and infer 
+if not os.path.exists('/workspace/Explainability_Dermatology/embeddings.npz'):
+    images_masked = []
+    metadata = [] 
+    embeddings = []
+    with open(os.path.join(directory, filename)) as file:
+        data = json.load(file)['labels']
+        random.shuffle(data)
+        data = data[:3000]
+        for n, (img, label) in tqdm(enumerate(data)):
+            # Load an image and infer 
 
-        # Load the image
-        img_dir = os.path.join(directory,img) 
-        im_orig = utils.LoadImage(img_dir)
-        im_tensor = utils.PreprocessImages([im_orig]).to(device)
-        # Infer
-        features = model.arch(im_tensor)  # 500D features
-        prediction = model.output(features)
-        prediction = torch.sigmoid(prediction)
-        prediction = torch.tensor([[1-prediction, prediction]], device='cuda:0') 
-        prediction = prediction.detach().cpu().numpy()
-        prediction_class = np.argmax(prediction[0])
-        call_model_args = {class_idx_str: prediction_class}
-        im = im_orig.astype(np.float32)
+            # Load the image
+            img_dir = os.path.join(directory,img) 
+            im_orig = utils.LoadImage(img_dir)
+            im_tensor = utils.PreprocessImages([im_orig]).to(device)
+            # Infer
+            features = model.arch(im_tensor)  # 500D features
+            prediction = model.output(features)
+            prediction = torch.sigmoid(prediction)
+            prediction = torch.tensor([[1-prediction, prediction]], device='cuda:0') 
+            prediction = prediction.detach().cpu().numpy()
+            prediction_class = np.argmax(prediction[0])
+            call_model_args = {class_idx_str: prediction_class}
+            im = im_orig.astype(np.float32)
 
-        # Compute XRAI attributions with fast algorithm
-        xrai_attributions = xrai_object.GetMask(im, call_model_function, call_model_args, extra_parameters=xrai_params, batch_size=20)
+            # Compute XRAI attributions with fast algorithm
+            xrai_attributions = xrai_object.GetMask(im, call_model_function, call_model_args, extra_parameters=xrai_params, batch_size=20)
 
-        # Mask the image with the most salient 15% of the image
-        mask = xrai_attributions > np.percentile(xrai_attributions, 85)
-        im_mask = np.array(im_orig)
-        im_mask[~mask] = 0 
+            # Mask the image with the most salient 15% of the image
+            mask = xrai_attributions > np.percentile(xrai_attributions, 85)
+            im_mask = np.array(im_orig)
+            im_mask[~mask] = 0 
 
-        # Save data for projection
-        embeddings.append(features.cpu().detach().numpy())
+            # Save data for projection
+            embeddings.append(features.cpu().detach().numpy())
+            images_pil.append(transform(Image.open(img_dir).resize((100, 100))))
+            images_masked.append(im_mask.flatten())
+            metadata.append([label, img])
+
+    np.savez('/workspace/Explainability_Dermatology/embeddings.npz', np.array(embeddings))  
+    np.savez('/workspace/Explainability_Dermatology/metadata.npz', np.array(metadata))  
+    np.savez('/workspace/Explainability_Dermatology/masked_img.npz', np.array(images_masked))  
+else:
+    embeddings = np.load('/workspace/Explainability_Dermatology/embeddings.npz')["arr_0"]  # (N,1,500)
+    masked_img = np.load('/workspace/Explainability_Dermatology/masked_img.npz')["arr_0"] # (N, 256x256x3)
+    metadata = np.load('/workspace/Explainability_Dermatology/metadata.npz')["arr_0"] # (N, 2)
+    metadata = [l.tolist() for l in metadata]
+    for label, dir in metadata:
+        img_dir = os.path.join(directory, dir)
         images_pil.append(transform(Image.open(img_dir).resize((100, 100))))
-        images_masked.append(im_mask.flatten())
-        metadata.append([label, img])
-
-np.savez('./Explainability_Dermatology/embeddings.npz', np.array(embeddings), newline="./")  
-np.savez('./Explainability_Dermatology/metadata.npz', np.array(metadata), newline="./")  
-np.savez('./Explainability_Dermatology/masked_img.npz', np.array(images_masked), newline="./")  
-# npzfile = np.load(outfile)
-# npzfile.files
 
 writer = SummaryWriter('/workspace/Explainability_Dermatology')
 
-writer.add_embedding(np.array(embeddings).squeeze(),
+writer.add_embedding(
+                    np.array(embeddings).squeeze(), 
                     metadata=metadata,
                     metadata_header=["label","image_name"],
-                    label_img=torch.stack(images_pil)) 
+                    label_img=torch.stack(images_pil),
+                    global_step=1, 
+                    ) 
+
+writer.add_embedding(
+                    np.array(masked_img).squeeze(), 
+                    metadata=metadata,
+                    metadata_header=["label","image_name"],
+                    label_img=torch.stack(images_pil),
+                    global_step=2, 
+                    ) 
 
 writer.close() 

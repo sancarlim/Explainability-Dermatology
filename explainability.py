@@ -13,23 +13,20 @@ from argparse import ArgumentParser
 from PIL import Image
 from efficientnet_pytorch import EfficientNet
 from torchvision.models import resnet50
-from melanoma_cnn_efficientnet import Net , CustomDataset, train_test_split
+from melanoma_cnn_efficientnet import Net 
 import json
 import random
 import cv2
-import numpy as np
-import pandas as pd
-from pathlib import Path
+import numpy as np 
 from captum.attr import GuidedGradCam, IntegratedGradients, GradientShap, Occlusion, NoiseTunnel, Saliency
 from captum.attr import visualization as viz
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-from predict import plot_diagnosis
 
-from pytorch_grad_cam import GradCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad, LayerCAM
+""" from pytorch_grad_cam import GradCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad, LayerCAM
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image 
-
+"""
 torch.manual_seed(0)
 np.random.seed(0)
 

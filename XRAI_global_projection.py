@@ -50,8 +50,8 @@ def conv_layer_backward(m, i, o):
     # move the RGB dimension to the last dimension
     conv_layer_outputs[saliency.base.CONVOLUTION_OUTPUT_GRADIENTS] = torch.movedim(o[0], 1, 3).detach().cpu().numpy()
 
-conv_layer.register_forward_hook(conv_layer_forward)
-conv_layer.register_full_backward_hook(conv_layer_backward)
+#conv_layer.register_forward_hook(conv_layer_forward)
+#conv_layer.register_full_backward_hook(conv_layer_backward)
 
 # call_model_function is how we pass inputs to our model and receive outputs necessary to computer saliency masks.
 

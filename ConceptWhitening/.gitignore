@@ -1,0 +1,4 @@
+*.pyc
+plot/*
+checkpoints/*
+*.out

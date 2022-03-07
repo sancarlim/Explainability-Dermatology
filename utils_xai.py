@@ -1,7 +1,11 @@
+#!/usr/bin/env python3
+
 import numpy as np
-import PIL.Image
+import PIL.Image as Image
 from matplotlib import pylab as P
-import torch
+import torch 
+import pandas as pd
+from torch.utils.data import Dataset
 from torchvision import transforms
 import random
 import os
@@ -48,6 +52,33 @@ class Net(torch.nn.Module):
             return features
         return output
 
+
+class CustomDataset(Dataset):
+    def __init__(self, df: pd.DataFrame, train: bool = True, transforms= None):
+        self.df = df
+        self.transforms = transforms
+        self.train = train
+    def __len__(self):
+        return len(self.df)
+    def __getitem__(self, index):
+        img_path = self.df.iloc[index]['image_name'] 
+        images =Image.open(img_path)
+
+        if self.transforms:
+            images = self.transforms(images)
+            
+        labels = self.df.iloc[index]['target']
+
+        if self.train:
+            #return images, labels
+            return torch.tensor(images, dtype=torch.float32), torch.tensor(labels, dtype=torch.float32)
+        
+        else:
+            #return (images)
+            return img_path, torch.tensor(images, dtype=torch.float32), torch.tensor(labels, dtype=torch.float32)
+    
+
+
 def ShowImage(im, title='', ax=None):
     if ax is None:
         P.figure()
@@ -70,7 +101,7 @@ def ShowHeatMap(im, title, ax=None):
     P.title(title)
 
 def LoadImage(file_path):
-    im = PIL.Image.open(file_path)
+    im = Image.open(file_path)
     im = np.asarray(im)
     return im
 

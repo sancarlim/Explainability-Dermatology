@@ -118,6 +118,5 @@ We observe two clear clusters corresponding to frames and rulers, as well as one
 ![visualization](https://github.com/sandracl72/Explainability-Dermatology/blob/master/docs/XAI_CNNembs_from_masked_imgs.PNG)
 
  ## Acknowledgements
-
 The project was developed during the first rotation of the [Eye for AI Program](https://www.ai.se/en/eyeforai) at the AI Competence Center of [Sahlgrenska University Hospital](https://www.sahlgrenska.se/en/). Eye for AI initiative is a global program focused on bringing more international talents into the Swedish AI landscape.
 

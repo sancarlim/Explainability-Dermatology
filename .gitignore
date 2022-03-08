@@ -4,7 +4,12 @@ __pycache__/
 .github/ISSUE_TEMPLATE/bug_report.md
 /generated*
 /lightning_logs
-*png
+/local_xai_examples
+/tensorboard_projections
+/concepts
+/cav
+/biases
+/biases_original
 *jpg
 *pth 
 *npz

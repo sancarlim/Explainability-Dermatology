@@ -1,25 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # File       : XRAI_global_projection.py
-# Modified   : 12.01.2022
+# Modified   : 08.03.2022
 # By         : Sandra Carrasco <sandra.carrasco@ai.se>
 
 from torchvision import transforms
 from torch.utils.tensorboard import SummaryWriter
 import torch
-import os, sys
-from tqdm import tqdm
-
-sys.path.append('/workspace/stylegan2-ada-pytorch')
-
+import os 
+from tqdm import tqdm  
 from PIL import Image
 from efficientnet_pytorch import EfficientNet
 from torchvision.models import resnet50
-from melanoma_cnn_efficientnet import Net 
-import numpy as np 
-import matplotlib.pylab as P 
-from predict import plot_diagnosis
-import utils
+import numpy as np  
+import utils_xai as utils
+from utils_xai import Net 
 import json
 import random
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File       : utils_xai.ipynb
+# Modified   : 08.03.2022
+# By         : Sandra Carrasco <sandra.carrasco@ai.se>
 
 import numpy as np
 import PIL.Image as Image

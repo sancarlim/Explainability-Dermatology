@@ -1,32 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# File       : explainability.ipynb
-# Modified   : 12.01.2022
+# File       : local_xai_attr.py
+# Modified   : 08.03.2022
 # By         : Sandra Carrasco <sandra.carrasco@ai.se>
 
 from torchvision import transforms
 import torch
-import os, sys
-sys.path.append('/workspace/stylegan2-ada-pytorch')
-
-from argparse import ArgumentParser 
+import os
 from PIL import Image
 from efficientnet_pytorch import EfficientNet
 from torchvision.models import resnet50
-from melanoma_cnn_efficientnet import Net 
+from utils_xai import Net 
 import json
 import random
 import cv2
 import numpy as np 
-from captum.attr import GuidedGradCam, IntegratedGradients, GradientShap, Occlusion, NoiseTunnel, Saliency
-from captum.attr import visualization as viz
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
-""" from pytorch_grad_cam import GradCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad, LayerCAM
+# Captum
+from captum.attr import GuidedGradCam, IntegratedGradients, GradientShap, Occlusion, NoiseTunnel, Saliency
+from captum.attr import visualization as viz
+
+# Pytorch GradCam <https://github.com/jacobgil/pytorch-grad-cam>
+from pytorch_grad_cam import GradCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad, LayerCAM
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image 
-"""
+
+
 torch.manual_seed(0)
 np.random.seed(0)
 
@@ -45,6 +46,7 @@ testing_transforms = transforms.Compose([transforms.Resize(256),
                                             transforms.Normalize([0.485, 0.456, 0.406], 
                                                                 [0.229, 0.224, 0.225])])
 
+# Path to the images
 directories = ["/workspace/stylegan2-ada-pytorch/processed_dataset_256_SAM","/workspace/stylegan2-ada-pytorch/processed_dataset_256"]
 filename = "dataset.json"
 
@@ -52,8 +54,10 @@ filename = "dataset.json"
 # y = [1 for n in range(len(input_images))] #[0 if f.split('.jpg')[0][-1] == '0' else 1 for f in input_images]
 # data_df = pd.DataFrame({'image_name': input_images, 'target': y})
 
+
+""" 
 # For testing with ISIC dataset
-""" df = pd.read_csv(os.path.join('/workspace/melanoma_isic_dataset' , 'train_concat.csv')) 
+df = pd.read_csv(os.path.join('/workspace/melanoma_isic_dataset' , 'train_concat.csv')) 
 train_img_dir = os.path.join('/workspace/melanoma_isic_dataset' ,'train/train/')
 train_split, valid_split = train_test_split (df, stratify=df.target, test_size = 0.20, random_state=42) 
 validation_df=pd.DataFrame(valid_split)
@@ -72,6 +76,7 @@ model_r.load_state_dict(torch.load('/workspace/stylegan2-ada-pytorch/training_cl
 model_r.eval().to(device)
 model_ef.eval().to(device)
 
+# Captum - Construct different Attribution Methods objects
 guided_gc_ef = GuidedGradCam(model_ef,model_ef.arch._conv_head) 
 guided_gc_r = GuidedGradCam(model_r, model_r.arch.layer4[-1]) 
 integrated_gradients_ef = IntegratedGradients(model_ef)
@@ -89,7 +94,8 @@ target_layers_r = [model_r.arch.layer4[-1]]
 # Construct the CAM object once, and then re-use it on many images:
 cam_ef = EigenCAM(model=model_ef, target_layers=target_layers_ef, use_cuda=True)
 cam_r = EigenCAM(model=model_r, target_layers=target_layers_r, use_cuda=True)
-                            
+
+
 for directory in directories:
     with open(os.path.join(directory, filename)) as file:
         data = json.load(file)['labels']
@@ -120,7 +126,6 @@ for directory in directories:
 
 
             # Occlusion based attribution
-
             attr_occ = occlusion_r.attribute(image,
                                             strides = (3, 8, 8), 
                                             sliding_window_shapes=(3,15, 15),
@@ -184,11 +189,12 @@ for directory in directories:
                                 sign='all',
                                 outlier_perc=1)
             plt.savefig('/workspace/stylegan2-ada-pytorch/explainability_examples/saliency.png')
+
+            """ 
             # For a better visual of the attribution, the images between baseline and target are sampled 
             # using a noise tunnel (by adding gaussian noise). And when the gradients are calulcated, 
             # we smoothe them by calculating their mean squared.
-
-            """ noise_tunnel = NoiseTunnel(saliency_ef)
+            noise_tunnel = NoiseTunnel(saliency_ef)
 
             attributions_ig_nt = noise_tunnel.attribute(image, nt_samples=5, nt_type='smoothgrad')
             transposed_attr_ig_nt = np.transpose(attributions_ig_nt.squeeze().detach().cpu().numpy(), (1,2,0))

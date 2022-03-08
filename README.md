@@ -1,5 +1,7 @@
 # Explainability-Dermatology
 
+For further explanation of the methods and more examples of the results see [our confluence page](https://aisweden.atlassian.net/wiki/external/638779397/MjM2MGFiOGUyM2ZjNDlhZGI2Mzg2NDM0NTNhNDg2ZmU?atlOrigin=eyJpIjoiYTkzYjZiMTEzMjgwNDE2NGE2ODk1NWIzYWJiNTYxNmYiLCJwIjoiYyJ9).
+
 Black box machine learning models that cannot be understood by people, such as deep neural networks and large ensembles, are achieving impressive accuracy on various tasks. However, as machine learning is increasingly used to inform high stakes decisions, explainability and interpretability of the models is becoming essential. The lack of understanding on how neural networks make predictions enables unpredictable/biased models, causing real harm to society and a loss of trust in AI-assisted systems. There are many ways to explain: data vs. model, directly interpretable vs. post hoc explanation, local vs. global, static vs. interactive; the appropriate choice depends on the persona of the consumer of the explanation.
 
 For our particular project, our aim is twofold:
@@ -115,6 +117,8 @@ The following two images showcase the strong bias of the model towards black fra
 We observe two clear clusters corresponding to frames and rulers, as well as one zone with thick hair.
 ![visualization](https://github.com/sandracl72/Explainability-Dermatology/blob/master/docs/XAI_CNNembs_from_masked_imgs.PNG)
 
- 
+ ## Acknowledgements
+
+The project was developed during the first rotation of the [Eye for AI Program](https://www.ai.se/en/eyeforai) at the AI Competence Center of [Sahlgrenska University Hospital](https://www.sahlgrenska.se/en/). Eye for AI initiative is a global program focused on bringing more international talents into the Swedish AI landscape.
 
 
